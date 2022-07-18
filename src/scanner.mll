@@ -6,6 +6,8 @@ let digit = ['0' - '9']
 let letter = ['a'-'z''A'-'Z']
 let digits = digit+
 
+let id = (letter | digit | '_')+
+
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 
@@ -26,8 +28,10 @@ rule token = parse
 (* KRIPKE MODEL DEFINITIONS *)
 | "kripke" { KRIPKE }
 | "->"     { EDGE }
-| "-" (letter | digit | '_')+ "->" as ledge { LEDGE(String.sub ledge 1 ((String.length ledge) - 3)) }
+| "-" id "->" as ledge { LEDGE(String.sub ledge 1 ((String.length ledge) - 3)) }
+| "agents" { AGENTS }
+| "worlds" { WORLDS }
 
 (* Misc *)
-| letter (letter | digit | '_')* as id  { ID(id) }
+| id as id  { ID(id) }
 | eof { EOF }
