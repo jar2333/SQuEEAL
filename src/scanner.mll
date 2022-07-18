@@ -17,12 +17,17 @@ rule token = parse
 | '(' { LPAREN }
 | ')' { RPAREN }
 
+(* Delimiters *)
+| ':' { COLON }
+| ',' { COMMA }
+| ';' { SEMI }
+| '.' { DOT }
+
 (* KRIPKE MODEL DEFINITIONS *)
 | "kripke" { KRIPKE }
 | "->"     { EDGE }
 | "-" (letter | digit | '_')+ "->" as ledge { LEDGE(String.sub ledge 1 ((String.length ledge) - 3)) }
 
 (* Misc *)
-| ';' { SEMI }
 | letter (letter | digit | '_')* as id  { ID(id) }
 | eof { EOF }
