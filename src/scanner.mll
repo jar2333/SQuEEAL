@@ -18,6 +18,8 @@ rule token = parse
 | ']' { RSQBRACE }
 | '(' { LPAREN }
 | ')' { RPAREN }
+| '<' { LANGLEBRACE }
+| '>' { RANGLEBRACE }
 
 (* Delimiters *)
 | ':' { COLON }
@@ -28,9 +30,17 @@ rule token = parse
 (* KRIPKE MODEL DEFINITIONS *)
 | "kripke" { KRIPKE }
 | "->"     { EDGE }
-| "-" id "->" as ledge { LEDGE(String.sub ledge 1 ((String.length ledge) - 3)) }
+(* | "-" id "->" as ledge { LEDGE(String.sub ledge 1 ((String.length ledge) - 3)) } *)
 | "agents" { AGENTS }
 | "worlds" { WORLDS }
+| "atoms"  { ATOMS } 
+
+(* QUERY *)
+| ":="  { IMPLIES }
+| "&"   { AND }
+| "|"   { OR }
+| "~"   { NOT }
+| "!"   { ANNOUNCE }
 
 (* Misc *)
 | id as id  { ID(id) }
