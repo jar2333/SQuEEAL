@@ -46,13 +46,8 @@
 
 %%
 
-/* add function declarations*/
 main:
   stmt SEMI { $1 }
-
-// stmt_list:
-//   /* nothing */ { [] }
-//   | stmt stmt_list  { $1::$2 }
 
 stmt:
   kripke {$1}
