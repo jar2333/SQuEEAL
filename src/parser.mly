@@ -41,34 +41,34 @@
 // %left COLON
 // %left COMMA
 
-%start program
-%type <Ast.program> program
+%start main
+%type <Ast.main> main
 
 %%
 
 /* add function declarations*/
-program:
-  stmt_list EOF { $1 }
+main:
+  stmt SEMI { $1 }
 
-stmt_list:
-  /* nothing */ { [] }
-  | stmt stmt_list  { $1::$2 }
+// stmt_list:
+//   /* nothing */ { [] }
+//   | stmt stmt_list  { $1::$2 }
 
 stmt:
-  kripke SEMI {$1}
-  | ID DOT ID IMPLIES query SEMI  {Query($1, $3, $5)}
+  kripke {$1}
+  | ID DOT ID IMPLIES formula {Query($1, $3, $5)}
 
-query:
-    LPAREN query RPAREN {$2}
+formula:
+    LPAREN formula RPAREN {$2}
     | ID {Atom($1)}
-    | NOT query {Not($2)}
-    | query AND query {And($1, $3)}
-    | query OR query {Or($1, $3)}
-    | query EDGE query {Conditional($1, $3)}
-    | LSQBRACE ID RSQBRACE query {Know($2, $4)}
-    | LANGLEBRACE ID RANGLEBRACE query {Consistent($2, $4)}
-    | LSQBRACE query ANNOUNCE RSQBRACE query {Announce($2, $5)}
-    | LANGLEBRACE query ANNOUNCE RANGLEBRACE query {DualAnnounce($2, $5)}
+    | NOT formula {Not($2)}
+    | formula AND formula {And($1, $3)}
+    | formula OR formula {Or($1, $3)}
+    | formula EDGE formula {Conditional($1, $3)}
+    | LSQBRACE ID RSQBRACE formula {Know($2, $4)}
+    | LANGLEBRACE ID RANGLEBRACE formula {Consistent($2, $4)}
+    | LSQBRACE formula ANNOUNCE RSQBRACE formula {Announce($2, $5)}
+    | LANGLEBRACE formula ANNOUNCE RANGLEBRACE formula {DualAnnounce($2, $5)}
 
 kripke:
   | KRIPKE ID LBRACE graph_stmt_list RBRACE { KripkeDeclare($2, $4) }

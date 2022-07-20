@@ -1,6 +1,9 @@
 (* Ocamllex scanner for EQL *)
 
-{ open Parser }
+{ 
+  open Parser 
+  exception Eof
+}
 
 let digit = ['0' - '9']
 let letter = ['a'-'z''A'-'Z']
@@ -24,8 +27,10 @@ rule token = parse
 (* Delimiters *)
 | ':' { COLON }
 | ',' { COMMA }
-| ';' { SEMI }
 | '.' { DOT }
+
+(* NEWLINE/SEMICOLON *)
+| ";\n" { SEMI }
 
 (* KRIPKE MODEL DEFINITIONS *)
 | "kripke" { KRIPKE }

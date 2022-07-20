@@ -32,7 +32,7 @@ type stmt =
   | KripkeDeclare of string * graph_stmt list
   | Query of string * string * query_expr
 
-type program = stmt list
+type main = stmt
 
 (* Pretty-printing functions *)
 let string_of_expr expr =
