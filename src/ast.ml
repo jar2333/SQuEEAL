@@ -6,9 +6,6 @@ type uop = Not
 
 type typ = Bool
 
-type expr =
-  Id of string
-
 type query_expr =
   Atom of string
   | And of query_expr * query_expr
@@ -26,16 +23,12 @@ type graph_stmt =
 | AtomDef of string * string
 
 type stmt =
-    Expr of expr
   | KripkeDeclare of string * graph_stmt list
   | Query of string * string * query_expr
 
 type main = stmt
 
 (* Pretty-printing functions *)
-let string_of_expr expr =
-  match expr with
-  | Id(s) -> s
 
 let rec string_of_query_expr expr =
   match expr with
@@ -58,7 +51,6 @@ let string_of_graph_stmt graph_stmt =
 
 let string_of_stmt stmt =
   (match stmt with
-  | Expr(e) -> string_of_expr e
   | KripkeDeclare(id, g) -> "kripke " ^ id ^ " {\n" ^ (String.concat "\t\n" (List.map string_of_graph_stmt g)) ^ "\n}"
   | Query(model_id, world_id, q) -> model_id ^ "." ^ world_id ^ " := " ^ (string_of_query_expr q) 
   ) ^ ";"

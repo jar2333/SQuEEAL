@@ -1,13 +1,13 @@
 #	Makefile for EQL
 
 default:
-	ocamlbuild src/run.native
+	ocamlbuild src/interpreter.native
 
 run:
-	./run.native
+	./interpreter.native
 
 clean: 
-	rm -f run.native
+	rm -f interpreter.native
 	rm -r _build
 
 repl:
