@@ -20,8 +20,6 @@ type query_expr =
   | Announce of query_expr * query_expr
   | DualAnnounce of query_expr * query_expr
 
-
-
 type graph_stmt = 
   Node of string
 | Edge of string * string * string
@@ -42,9 +40,9 @@ let string_of_expr expr =
 let rec string_of_query_expr expr =
   match expr with
   | Atom(id) -> id
-  | And(q1, q2) -> (string_of_query_expr q1) ^ " & " ^ (string_of_query_expr q2)
-  | Or(q1, q2) -> (string_of_query_expr q1) ^ " | " ^ (string_of_query_expr q2)
-  | Conditional(q1, q2) -> (string_of_query_expr q1) ^ " -> " ^ (string_of_query_expr q2)
+  | And(q1, q2) -> "(" ^ (string_of_query_expr q1) ^ " & " ^ (string_of_query_expr q2) ^ ")"
+  | Or(q1, q2) -> "(" ^ (string_of_query_expr q1) ^ " | " ^ (string_of_query_expr q2) ^ ")"
+  | Conditional(q1, q2) -> "(" ^ (string_of_query_expr q1) ^ " -> " ^ (string_of_query_expr q2) ^ ")"
   | Not(q) -> "~( " ^ (string_of_query_expr q) ^ ")"
   | Know(a, q) -> "[" ^ a ^ "](" ^ (string_of_query_expr q) ^ ")"
   | Consistent(a, q) -> "<" ^ a ^ ">(" ^ (string_of_query_expr q) ^ ")"
@@ -64,6 +62,3 @@ let string_of_stmt stmt =
   | KripkeDeclare(id, g) -> "kripke " ^ id ^ " {\n" ^ (String.concat "\t\n" (List.map string_of_graph_stmt g)) ^ "\n}"
   | Query(model_id, world_id, q) -> model_id ^ "." ^ world_id ^ " := " ^ (string_of_query_expr q) 
   ) ^ ";"
-
-let string_of_program p =
-  String.concat "\n" (List.map string_of_stmt p)
