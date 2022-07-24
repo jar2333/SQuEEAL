@@ -9,7 +9,7 @@ This project aims to provide an engine for specifying agents, Kripke models, and
 
 At the moment, the project will be written in OCaml. However, it is expected to be translated to F#, in order to provide access to the .NET runtime, and hence make a C# API straightforward.
 
-The engine is *semantic* because all formulas will be evaluated with respect to a provided Kripke model, utilizing Kripke semantics directly. This is **NOT** a theorem prover. There are no plans to use axiomatizations or inference rule application to evaluate the formulas, beyond simple substitutions that may speed up evaluation. The idea is to use graph algorithms and data structures to directly evaluate EAL sentences using Kripke semantics. By default, it is expected to use lazy evaluation and short-circuited boolean operators. This however is tentative!
+The engine is *semantic* because all formulas will be evaluated with respect to a provided Kripke model, utilizing Kripke semantics directly. This is **NOT** a theorem prover. There are no plans to use axiomatizations or inference rule application to evaluate the formulas, beyond simple substitutions that may speed up evaluation. The idea is to use graph algorithms and data structures to directly evaluate EAL sentences using Kripke semantics. By default, it is expected to use caching for models and short-circuited boolean operators. This however is tentative!
 
 Standard EAL announcement operators will work out-of-the-box, but the option to define action models and hence custom operators will be supported. This is possible due to the BMS “product update” theorem (read the SEP page for more info).
 
@@ -33,7 +33,7 @@ The syntax is meant to be very flexible. One can delimit multiple expressions in
 There are two types of statements currently supported:
 1. Kripke model definition:
 
-Inside a kripke model one can use the `worlds`, `agents`, and `atoms` statements to specify the possible worlds, the agent relations, and the atomic sentence world assignments.
+Inside a kripke model definition statement one can use the `worlds`, `agents`, and `atoms` statements to specify the possible worlds, the agent relations, and the atomic sentence world assignments.
 
 Here is an example providing all the different syntax for the statements defining a model:
 ```
