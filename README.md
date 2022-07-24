@@ -54,7 +54,7 @@ kripke m {
         q: 4;
 };
 
--------EVALUATED STATEMENT------
+-------EVALUATED STATEMENT-------
 
 Model id: m
 Kripke Model:
@@ -66,7 +66,7 @@ Atomic Assignment:
 p: {1, 2, 3, }
 q: {1, 2, 3, 4, }
 
----------------------------
+---------------------------------
 ```
 
 2. Logic formula satisfaction queries
@@ -76,11 +76,11 @@ Read as "model `m` at world `1` satisfies `[c](p & q)`:
 ```
 m.1 := [c](p & q);        
 
--------EVALUATED STATEMENT------
+-------EVALUATED STATEMENT-------
 
 true
 
----------------------------
+---------------------------------
 ```
 
 ## Background
