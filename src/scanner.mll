@@ -49,4 +49,4 @@ rule token = parse
 
 (* Misc *)
 | id as id  { ID(id) }
-| eof { EOF }
+| eof { raise Eof }

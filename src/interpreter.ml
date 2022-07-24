@@ -1,5 +1,7 @@
 open Ast
 
+(* REFACTOR BY MAKING A MODEL MODULE AND A GRAPH MODULE MAYBE? *)
+
 module VertexMap = Map.Make(String);;
 module EdgeSet = Set.Make(struct type t = string * string let compare = compare end);; (* (w, a) *)
 
@@ -35,7 +37,7 @@ let create_model model_stmts =
   let add_edge u_id label edge_set = 
     match edge_set with 
     | Some(e) -> Some(EdgeSet.add (u_id, label) e)
-    | None    -> None
+    | None    -> Some(EdgeSet.add (u_id, label) EdgeSet.empty)
   in
   let add_world world_id world_set =
     match world_set with
@@ -53,39 +55,47 @@ let create_model model_stmts =
   List.fold_left add empty_model model_stmts
 in
 
+
+
 (* change this to use models directly and not model_ids *)
-let rec evaluate_query (model_id : string) (world_id : string) query : bool = 
+let rec evaluate_query (m: model) (world_id : string) query : bool = 
   match query with
   (* ATOMS *)
-  | Atom(atom_id) ->  let (_, assignments) = Hashtbl.find models model_id in
+  | Atom(atom_id) ->  let (_, assignments) = m in
                       let worlds = AtomMap.find atom_id assignments in
                       WorldSet.mem world_id worlds
 
   (* PRIMITIVE CONNECTIVES *)
-  | Not (q) -> not (evaluate_query model_id world_id q)
-  | And (q1, q2) -> (evaluate_query model_id world_id q1) && (evaluate_query model_id world_id q2)
+  | Not(q)      -> not (evaluate_query m world_id q)
+  | And(q1, q2) -> (evaluate_query m world_id q1) && (evaluate_query m world_id q2)
 
   (* DERIVED CONNECTIVES (can be native or sugar) *)
-  | Or (q1, q2) -> (evaluate_query model_id world_id q1) || (evaluate_query model_id world_id q2)
-  | Conditional (q1, q2) -> (not (evaluate_query model_id world_id q1)) || (evaluate_query model_id world_id q2)
+  | Or(q1, q2)          -> (evaluate_query m world_id q1) || (evaluate_query m world_id q2)
+  | Conditional(q1, q2) -> (not (evaluate_query m world_id q1)) || (evaluate_query m world_id q2)
 
   (* MODAL OPERATOR *)
-  | Know(agent_id, q) ->  let (digraph, _) = Hashtbl.find models model_id in
+  | Know(agent_id, q)  -> let (digraph, _) = m in
                           let edges = VertexMap.find world_id digraph in 
-                          EdgeSet.for_all (fun (v, a) -> if a = agent_id then evaluate_query model_id v q else true) edges
+                          EdgeSet.for_all (fun (v, a) -> if a = agent_id then evaluate_query m v q else true) edges
 
   (* MODAL OPERATOR DUAL (sugar) *)
-  | Consistent(agent_id, q) -> evaluate_query model_id world_id (Not(Know(agent_id, Not(q))))
+  | Consistent(agent_id, q) -> evaluate_query m world_id (Not(Know(agent_id, Not(q))))
 
   (* public announcement, unimplemented *)
-  | Announce (q1, q2) -> true
+  | Announce (q1, q2)     -> true
   | DualAnnounce (q1, q2) -> true
 in
 
 let execute_stmt stmt =
   match stmt with
-  | KripkeDeclare(id, model_stmts) -> let m = create_model model_stmts in Hashtbl.add models id m; print_model id m;
-  | Query(model_id, world_id, query) -> print_endline (string_of_bool (evaluate_query model_id world_id query))
+  | KripkeDeclare(id, model_stmts)   -> let m = create_model model_stmts in 
+                                        Hashtbl.add models id m; 
+                                        print_model id m;
+
+  | Query(model_id, world_id, query) -> let model_opt = Hashtbl.find_opt models model_id in  (* Add "world inside model" check also!!! *)
+                                        match model_opt with
+                                        | Some(m) -> print_endline (string_of_bool (evaluate_query m world_id query))
+                                        | None    -> print_endline ("Error: Model " ^ model_id ^ " not found!")
 in
 
 
@@ -94,10 +104,9 @@ try
   let lexbuf = Lexing.from_channel stdin in
   while true do
     let result = Parser.main Scanner.token lexbuf in
-      print_endline("\n-------EVALUATED STATEMENT------\n");
-      (* print_endline (Ast.string_of_stmt result); *)
+      print_endline("\n-------EVALUATED STATEMENT-------\n");
       execute_stmt result;
-      print_endline("\n---------------------------\n");
+      print_endline("\n---------------------------------\n");
       flush stdout
   done
 with Scanner.Eof ->
