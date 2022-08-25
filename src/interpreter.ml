@@ -57,7 +57,6 @@ in
 
 
 
-(* change this to use models directly and not model_ids *)
 let rec evaluate_query (m: model) (world_id : string) query : bool = 
   match query with
   (* ATOMS *)
@@ -68,7 +67,7 @@ let rec evaluate_query (m: model) (world_id : string) query : bool =
   (* PRIMITIVE CONNECTIVES *)
   | Not(q)      -> not (evaluate_query m world_id q)
   | And(q1, q2) -> (evaluate_query m world_id q1) && (evaluate_query m world_id q2)
-
+  
   (* DERIVED CONNECTIVES (can be native or sugar) *)
   | Or(q1, q2)          -> (evaluate_query m world_id q1) || (evaluate_query m world_id q2)
   | Conditional(q1, q2) -> (not (evaluate_query m world_id q1)) || (evaluate_query m world_id q2)
@@ -81,9 +80,15 @@ let rec evaluate_query (m: model) (world_id : string) query : bool =
   (* MODAL OPERATOR DUAL (sugar) *)
   | Consistent(agent_id, q) -> evaluate_query m world_id (Not(Know(agent_id, Not(q))))
 
-  (* public announcement, unimplemented *)
-  | Announce (q1, q2)     -> true
-  | DualAnnounce (q1, q2) -> true
+  (* Public announcement, unimplemented *)
+  | Announce (q1, q2)    -> (not (evaluate_query m world_id q1)) || (
+                            let (digraph, assignments) = m in
+                            let new_digraph = VertexMap.filter (fun v edges -> evaluate_query m v q1) digraph in
+                            evaluate_query (new_digraph, assignments) world_id q2
+                            )
+
+  (* Public announcement dual (sugar) *)
+  | DualAnnounce (q1, q2) -> evaluate_query m world_id (Not(Announce(q1, Not(q2))))
 in
 
 let execute_stmt stmt =
